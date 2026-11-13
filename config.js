@@ -1,12 +1,11 @@
-// إعدادات النشر — عدّلها بعد إنشاء مشروع Supabase (راجع README)
-// اترك relayUrl فارغاً ليعمل التطبيق بالوضع اليدوي فقط
+// إعدادات النشر
 export default {
-  // رابط مشروع Supabase مثل: https://abcdxyz.supabase.co
-  relayUrl: '',
-  // المفتاح العام (anon / publishable) — آمن للنشر لأن الجداول مغلقة والوصول عبر الدوال فقط
-  relayAnonKey: '',
+  // رابط مشروع Supabase
+  relayUrl: 'https://iscsjyrxqijhdmfjdvtl.supabase.co',
+  // المفتاح العام (publishable)
+  relayAnonKey: 'sb_publishable_A_Eh1t4WnCj9q1_NRY-X2Q_BBdGoh3v',
   // الفاصل التقريبي لمتابعة الغرفة بالملي ثانية
   pollMs: 4000,
-  // رابط الموقع المنشور (يُستخدم لتوليد روابط الشيوخ)، مثل: https://user.github.io/umrah/
+  // رابط الموقع المنشور (اختياري)
   siteUrl: '',
 };
