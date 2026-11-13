@@ -21,7 +21,28 @@ export function ayahBlocks(ch) {
   return [...seen.entries()].sort((a, b) => a[0] - b[0]);
 }
 
+// فحص أرقام الآيات: رقم مكرر لنصين مختلفين، أو رقم ناقص في التسلسل
+export function ayahNumberProblems(ch) {
+  const byNo = new Map(), out = [];
+  for (const x of flatSlides(ch)) for (const st of x.slide.steps) for (const b of st.blocks) {
+    if (b.type !== 'ayah') continue;
+    if (!b.no) { out.push(`كتلة آية بلا رقم في شريحة «${x.slide.title}»`); continue; }
+    const k = Number(b.no);
+    if (!byNo.has(k)) byNo.set(k, []);
+    byNo.get(k).push({ text: (b.text || '').trim(), title: x.slide.title });
+  }
+  for (const [k, list] of byNo) if (new Set(list.map(l => l.text)).size > 1) out.push(`الرقم ${k} مكرر لآيتين مختلفتين في شريحتي: ${list.map(l => '«' + l.title + '»').join(' و')}`);
+  const nums = [...byNo.keys()].sort((a, b) => a - b);
+  for (let n = 1; n <= (nums.at(-1) || 0); n++) if (!byNo.has(n)) out.push(`الآية رقم ${n} غير موجودة`);
+  return out;
+}
+
 export function openSegmentTool(ch, onDone = () => {}) {
+  const problems = ayahNumberProblems(ch);
+  if (problems.length) {
+    modal('أرقام الآيات تحتاج تصحيحاً', el('div', {}, el('p', {}, 'صحّح «رقم الآية» في هذه الكتل أولاً، ثم افتح أداة التقسيم:'), el('ul', {}, problems.map(t => el('li', {}, t)))), [{ label: 'حسناً', value: 0 }]);
+    return;
+  }
   const ayahs = ayahBlocks(ch);
   if (!ayahs.length) { toast('لا توجد كتل «آية» مرقّمة في هذا الباب'); return; }
   let src = ayahs.find(([, bs]) => bs[0].audio)?.[1][0].audio || '';

@@ -48,7 +48,7 @@ function tree(ch, list) {
     ...ch.sections.map((sec, si) => el('div.ed-sec', {},
       el('div.ed-sec-head', {},
         inlineInput(sec.title, v => { logChange({ where: ch.title, field: 'عنوان القسم', before: sec.title, after: v }); sec.title = v; changed(); }, 'عنوان القسم'),
-        el('input.mins', { type: 'number', min: 0, value: sec.minutes ?? '', placeholder: 'د', title: 'دقائق القسم', onchange: e => { sec.minutes = e.target.value === '' ? null : Number(e.target.value); changed(); draw(); } })),
+        el('input.mins', { type: 'number', min: 0, onwheel: e => e.target.blur(), value: sec.minutes ?? '', placeholder: 'د', title: 'دقائق القسم', onchange: e => { sec.minutes = e.target.value === '' ? null : Number(e.target.value); changed(); draw(); } })),
       el('div.ed-sec-tools', {},
         tool('↑', 'قسم لأعلى', () => moveIn(ch.sections, si, -1)),
         tool('↓', 'قسم لأسفل', () => moveIn(ch.sections, si, 1)),
@@ -312,7 +312,7 @@ function fieldRow(label, obj, key, f) {
     }
     default: {
       let before;
-      input = el('input', { type: f.kind === 'number' ? 'number' : 'text', onfocus: () => { before = obj[key]; }, oninput: e => { obj[key] = e.target.value; live(); }, onchange: e => commit(e.target.value, before) });
+      input = el('input', { type: f.kind === 'number' ? 'number' : 'text', onwheel: e => { if (f.kind === 'number') e.target.blur(); }, onfocus: () => { before = obj[key]; }, oninput: e => { obj[key] = e.target.value; live(); }, onchange: e => commit(e.target.value, before) });
       input.value = obj[key] ?? '';
       return el('label.fld', {}, el('span', {}, label), input, f.hint ? el('span.small', {}, f.hint) : null);
     }
