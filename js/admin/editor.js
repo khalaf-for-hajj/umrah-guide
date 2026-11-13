@@ -3,12 +3,13 @@ import { el, toast } from '../core/dom.js';
 import { blockType, blockTypes } from '../core/blocks.js';
 import { renderSlide } from '../core/render.js';
 import { drawStage } from '../core/stage.js';
-import { flatSlides, emptySlide, emptySection, uid, AUDIENCE, CHAPTER_STATUS, stepCount, chapterMinutesCheck, EXPLAIN_FOR, explainFor } from '../core/pack.js';
+import { flatSlides, emptySlide, emptySection, uid, AUDIENCE, CHAPTER_STATUS, stepCount, chapterMinutesCheck, EXPLAIN_FOR, explainFor, pilgrimMarja } from '../core/pack.js';
 import { verifyTashkeel, STATUS_LABELS } from '../core/arabic.js';
 import { confirmBox } from '../core/ui.js';
 import { A, changed, logChange, putMedia, preloadMediaUrls, resolveMedia, reviewer, locateSlide } from './state.js';
 import { toWebp, randName } from './importer.js';
 import { openSegmentTool } from './segment.js';
+import { addMarja } from './marjas.js';
 
 const sel = { ch: null, slide: null, step: null, viewer: 'pilgrim', marja: 'other', shape: 'iphone' };
 let host = null;
@@ -359,7 +360,10 @@ function previewPanel() {
   return el('aside.ed-preview', {},
     el('div.row', {},
       el('select', { onchange: e => { sel.viewer = e.target.value; refreshPreview(); } }, [['pilgrim', 'كما يراه المعتمر'], ['sheikh', 'كما يراه الشيخ']].map(([v, t]) => el('option', { value: v, selected: sel.viewer === v ? true : null }, t))),
-      el('select', { onchange: e => { sel.marja = e.target.value; refreshPreview(); } }, [...A.pack.settings.marjas.map(m => [m.id, 'مقلد ' + m.name]), ['other', 'آخر / لا أدري']].map(([v, t]) => el('option', { value: v, selected: sel.marja === v ? true : null }, t)))),
+      el('select', { 'aria-label': 'المرجع في المعاينة', onchange: e => {
+        if (e.target.value === '+add') { const m = addMarja(); if (m) sel.marja = m.id; draw(); return; }
+        sel.marja = e.target.value; refreshPreview();
+      } }, [...A.pack.settings.marjas.map(m => [m.id, 'مقلد ' + m.name]), ['other', 'آخر / لا أدري'], ['+add', '+ إضافة مرجع…']].map(([v, t]) => el('option', { value: v, selected: sel.marja === v ? true : null }, t)))),
     el('div.row', {}, el('select', { onchange: e => { sel.shape = e.target.value; refreshPreview(); } }, Object.entries(SHAPES).map(([v, [t]]) => el('option', { value: v, selected: sel.shape === v ? true : null }, t)))),
     el('div.row', {}, el('span.small', {}, 'الخطوة:'), range, el('span.small.stepv', {}, `${sel.step} / ${total}`)),
     pv);
@@ -374,7 +378,7 @@ function refreshPreview() {
     if (!loc) { pv.replaceChildren(); return; }
     const total = stepCount(loc.slide);
     const step = Math.min(sel.step ?? total, total);
-    const c = { viewer: sel.viewer, marja: sel.marja, marjas: A.pack.settings.marjas, resolveMedia, dataSaver: true, explainDefault: A.pack.settings.explainFor };
+    const c = { viewer: sel.viewer, marja: sel.viewer === 'pilgrim' ? pilgrimMarja(A.pack.settings, sel.marja) : sel.marja, marjas: A.pack.settings.marjas, resolveMedia, dataSaver: true, explainDefault: A.pack.settings.explainFor };
     let node;
     if (SHAPES[sel.shape]?.[1]) {
       // معاينة شاشة المعتمر كما هي على الجوال (الشريط العلوي + المنصة + أزرار التنقل) ثم تصغيرها لتناسب اللوحة

@@ -3,6 +3,7 @@ import '../core/blocks-builtin.js';
 import { el, $, toast, download, fmtDate } from '../core/dom.js';
 import { flatSlides, emptyChapter, uid, newVersion, CHAPTER_STATUS, chapterMinutesCheck, PACK_FORMAT, SCHEMA_VERSION, EXPLAIN_FOR } from '../core/pack.js';
 import { openBook } from './book-open.js';
+import { marjaCard } from './marjas.js';
 import { slideMedia } from '../core/render.js';
 import { applyPrefs, confirmBox, modal } from '../core/ui.js';
 import { A, loadWork, replaceWork, changed, onChange, logChange, putMedia, preloadMediaUrls, getMediaBlob, flush, clearAll } from './state.js';
@@ -175,13 +176,7 @@ function publishTab(host) {
     explainCard(host),
     el('section.card', {}, el('h3', {}, 'نصوص التطبيق'),
       set('appName', 'اسم التطبيق'), set('org', 'اسم الحملة'), set('disclaimer', 'تنبيه التذييل'), set('copyright', 'سطر الحقوق'), set('terms', 'شروط الاستخدام (تظهر عند أول دخول)', 'textarea')),
-    el('section.card', {}, el('h3', {}, 'المراجع'),
-      el('p.small', {}, 'الأسماء تظهر للمعتمر عند اختيار المرجع. «الأسماء البديلة» يستعملها الاستيراد للتعرف على الأقوال (مفصولة بفواصل).'),
-      ...s.marjas.map((m, i) => el('div.row', {},
-        el('input', { type: 'text', value: m.name, onchange: e => { m.name = e.target.value; changed(); } }),
-        el('input', { type: 'text', value: m.aliases.join('، '), style: { flex: 1 }, onchange: e => { m.aliases = e.target.value.split(/[،,]/).map(x => x.trim()).filter(Boolean); changed(); } }),
-        el('span.small', {}, m.id))),
-      el('button.tool', { type: 'button', onclick: () => { const name = prompt('اسم المرجع'); if (!name) return; s.marjas.push({ id: uid('m'), name, aliases: [name] }); changed(); publishTab(host); } }, '+ مرجع')),
+    marjaCard(() => publishTab(host)),
     el('section.card', {}, el('h3', {}, 'نسخة العمل'),
       el('p.small', {}, 'تُحفظ تلقائياً في هذا المتصفح. احفظ نسخة احتياطية قبل مسح بيانات المتصفح.'),
       el('div.row', {},

@@ -2,7 +2,7 @@
 import './core/blocks-builtin.js';
 import { el, $, toast, fmtDate, paras } from './core/dom.js';
 import { store } from './core/store.js';
-import { loadPack, flatSlides, findChapter, publishedChapters, stepCount, AUDIENCE, explainFor } from './core/pack.js';
+import { loadPack, flatSlides, findChapter, publishedChapters, stepCount, AUDIENCE, explainFor, pilgrimMarja, askingMarja } from './core/pack.js';
 import { renderSlide, blockSearchText } from './core/render.js';
 import { drawStage, playerShell, fontsReady, onFontsChanged } from './core/stage.js';
 import { mountTrainer, hasAyahs } from './recite.js';
@@ -26,7 +26,7 @@ const S = {
 
 const app = $('#app');
 const ctx = () => ({
-  viewer: 'pilgrim', marja: store.get('marja'), marjas: S.pack.settings.marjas,
+  viewer: 'pilgrim', marja: pilgrimMarja(S.pack.settings, store.get('marja')), marjas: S.pack.settings.marjas,
   resolveMedia: src => 'content/' + src, dataSaver: dataSaver(), explainDefault: S.pack.settings.explainFor,
 });
 const explainOK = slide => Boolean(slide.explain?.trim()) && explainFor(S.pack, slide) === 'all';
@@ -551,7 +551,7 @@ function viewSettings() {
       el('div.setting', {}, el('b', {}, 'حجم الخط (في القوائم وطريقة القائمة)'),
         el('div.row', {}, el('button.btn.big', { type: 'button', onclick: () => bump(-0.1), 'aria-label': 'تصغير الخط' }, 'أ−'), el('span.grow.center', {}, fsLbl), el('button.btn.big', { type: 'button', onclick: () => bump(0.1), 'aria-label': 'تكبير الخط' }, 'أ+'))),
       el('div.setting', {}, el('b', {}, 'المظهر'), seg([['light', 'فاتح'], ['dark', 'داكن'], ['auto', 'تلقائي']], store.get('theme', 'auto'), v => set('theme', v), 'المظهر')),
-      el('div.setting', {}, el('b', {}, 'مرجع التقليد'), marjaChooser(S.pack.settings, store.get('marja'), id => { store.set('marja', id); toast('حُفظ المرجع'); })),
+      askingMarja(S.pack.settings) ? el('div.setting', {}, el('b', {}, 'مرجع التقليد'), marjaChooser(S.pack.settings, store.get('marja'), id => { store.set('marja', id); toast('حُفظ المرجع'); })) : null,
       el('div.setting', {}, el('b', {}, 'محرمات الرجال والنساء'), el('p.small', {}, 'اختر ما يُعرض لك عند التصفح وفي البحث.'), seg([['all', 'الكل'], ['men', 'رجال'], ['women', 'نساء']], audience(), v => { store.set('audience', v); INDEX = null; }, 'التصفية')),
       el('div.setting', {}, el('b', {}, 'توفير البيانات'), el('p.small', {}, 'يمنع تشغيل الفيديو على جوالك لتوفير الباقة.'), seg([[true, 'مفعّل'], [false, 'معطّل']], dataSaver(), v => store.set('dataSaver', v), 'توفير البيانات'))),
     el('section.card', {}, el('h3', {}, 'الدرس بلا إنترنت'), progTxt, prog, el('div', { style: { height: '10px' } }), dl,
@@ -590,7 +590,7 @@ async function boot() {
   await fontsReady;
   onFontsChanged(() => { if (ui.player) drawSlide(); });
   if (!store.get('termsAccepted')) await showTerms(S.pack.settings, true);
-  if (!store.get('marja')) await askMarja(S.pack.settings);
+  if (askingMarja(S.pack.settings) && !store.get('marja')) await askMarja(S.pack.settings);
   route();
   resumeRoom();
 }

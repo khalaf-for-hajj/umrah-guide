@@ -23,6 +23,8 @@ export const DEFAULT_SETTINGS = {
     'لا يجمع التطبيق اسمك ولا رقم جوالك ولا أي بيانات شخصية، وتُحفظ إعداداتك على جهازك فقط.',
     'هذا الشرح لا يغني عن الرجوع إلى رسالة مرجعك العملي.',
   ].join('\n'),
+  // كيف يُحدَّد مرجع المعتمر: ask = يسأله التطبيق، all = تُعرض أقوال كل المراجع دون سؤال، أو معرّف مرجع واحد للجميع
+  marjaMode: 'ask',
   explainFor: 'all', // من يرى «شرح الشيخ»: all = الشيخ والمعتمر، sheikh = الشيخ فقط (ويمكن تغييره لكل شريحة)
   marjas: [
     { id: 'khoei', name: 'الخوئي', aliases: ['الخوئي', 'خوئي', 'الخوئى'] },
@@ -112,6 +114,15 @@ export function flatSlides(chapter) {
 }
 
 export function findChapter(pack, id) { return pack.chapters.find(c => c.id === id); }
+
+/** مرجع المعتمر بحسب إعداد الحملة: اختياره هو، أو كل الأقوال، أو مرجع واحد يحدده المشرف */
+export function pilgrimMarja(settings, stored) {
+  const m = settings?.marjaMode || 'ask';
+  if (m === 'ask') return stored;
+  if (m === 'all') return 'other';
+  return (settings.marjas || []).some(x => x.id === m) ? m : 'other';
+}
+export const askingMarja = settings => (settings?.marjaMode || 'ask') === 'ask';
 
 /** من يرى «شرح الشيخ» لهذه الشريحة: إعداد الشريحة أولاً ثم الإعداد العام */
 export function explainFor(pack, slide) { return slide?.explainFor || pack?.settings?.explainFor || 'all'; }

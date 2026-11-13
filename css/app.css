@@ -537,3 +537,5 @@ dialog.modal .m-head, dialog.modal .m-foot { flex: none; }
 
 .chip.st-review { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); }
 .tool.warn { color: var(--warn); border-color: var(--warn); }
+.marja-row { align-items: center; gap: 6px; flex-wrap: wrap; }
+.marja-row input:first-child { width: 140px; }
