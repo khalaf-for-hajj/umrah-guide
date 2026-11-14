@@ -3,7 +3,7 @@
 import './core/blocks-builtin.js';
 import { el, $, toast, paras } from './core/dom.js';
 import { store } from './core/store.js';
-import { loadPack, flatSlides, findChapter, stepCount, explainFor } from './core/pack.js';
+import { loadPack, flatSlides, findChapter, stepCount, explainFor, bookTitle } from './core/pack.js';
 import { drawStage, fontsReady, onFontsChanged } from './core/stage.js';
 import { rpc, relayConfigured, relayHeaders } from './core/relay.js';
 import { registerSW } from './core/offline.js';
@@ -101,7 +101,7 @@ function viewLogin(msg) {
       el('p.small', {}, 'الرقم السري مطبوع في البطاقة التي سلّمها لك المشرف.'))
       : el('div.banner', {}, 'المتابعة التلقائية غير مضبوطة بعد. يمكنك العرض بالوضع اليدوي: تعلن رقم الشريحة والمعتمرون يذهبون إليها.'),
     el('section.card', { style: { display: 'grid', gap: '10px' } }, el('button.btn.big.ghost.block', { type: 'button', onclick: startManual }, 'اعرض بالوضع اليدوي (بلا متابعة)'),
-      el('a.btn.ghost.block', { href: 'book.html', target: '_blank', rel: 'noopener' }, '📖 كتاب الشيخ (للقراءة والطباعة)')),
+      el('a.btn.ghost.block', { href: 'book.html', target: '_blank', rel: 'noopener' }, `📖 ${bookTitle(S.pack.settings)} (للقراءة والطباعة)`)),
     el('p.center', {}, el('a', { href: 'index.html' }, 'العودة لصفحة المعتمر')),
     footer(S.pack.settings)));
   setTimeout(() => (S.cred?.code ? pin : code).focus(), 50);
@@ -121,7 +121,7 @@ function viewHome(msg) {
     el('section.card', { style: { display: 'grid', gap: '10px' } },
       el('button.btn.huge.block', { type: 'button', onclick: startSession }, r.live ? 'متابعة العرض' : 'ابدأ العرض'),
       r.live ? el('button.btn.danger.block', { type: 'button', onclick: endSession }, 'إنهاء العرض') : null,
-      el('a.btn.ghost.block', { href: 'book.html', target: '_blank', rel: 'noopener' }, '📖 كتاب الشيخ (للقراءة والطباعة)'),
+      el('a.btn.ghost.block', { href: 'book.html', target: '_blank', rel: 'noopener' }, `📖 ${bookTitle(S.pack.settings)} (للقراءة والطباعة)`),
       el('button.btn.ghost.block', { type: 'button', onclick: () => { store.del('sh.cred'); S.cred = null; S.room = null; viewLogin(); } }, 'تسجيل الخروج من هذا الجهاز')),
     footer(S.pack.settings)));
 }

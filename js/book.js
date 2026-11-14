@@ -3,7 +3,7 @@
 // المصدر: نسخة العمل في المحرر (إن فُتح منه) أو الدرس المنشور.
 import './core/blocks-builtin.js';
 import { el, $, paras } from './core/dom.js';
-import { loadPack, flatSlides, stepCount, explainFor, AUDIENCE } from './core/pack.js';
+import { loadPack, flatSlides, stepCount, explainFor, AUDIENCE, bookTitle } from './core/pack.js';
 import { renderSlide } from './core/render.js';
 import { fontsReady } from './core/stage.js';
 
@@ -29,7 +29,7 @@ function toolbar() {
     ...chs.map(c => el('option', { value: c.id, selected: opt.ch === c.id ? true : null }, c.title)));
   const chk = (key, label) => el('label', {}, el('input', { type: 'checkbox', checked: opt[key] ? true : null, onchange: e => { opt[key] = e.target.checked; draw(); } }), label);
   return el('div.bk-tools', {},
-    el('b', { style: { color: 'var(--gold)' } }, '📖 كتاب الشيخ'),
+    el('b', { style: { color: 'var(--gold)' } }, '📖 ' + bookTitle(pack.settings)),
     sel, chk('explain', 'شرح الشيخ'), chk('notes', 'ملاحظات للشيخ'), chk('images', 'الصور'), chk('ts', 'أوقات التسجيل'),
     el('button.btn', { type: 'button', onclick: () => print() }, '🖨 طباعة / حفظ PDF'),
     el('span.hint', {}, 'لحفظه ملف PDF: اضغط «طباعة / حفظ PDF» ثم اختر من الطابعات «حفظ بصيغة PDF» (Save as PDF)، والورق A4. يمكن إرسال الملف للشيخ ليطبعه.'));
@@ -82,7 +82,7 @@ function draw() {
   const totalSlides = chs.reduce((n, c) => n + flatSlides(c).length, 0);
   const cover = el('section.cover', {},
     el('img', { src: 'assets/img/logo-full.png', alt: st.org }),
-    el('div.k1', {}, 'كتاب الشيخ'),
+    el('div.k1', {}, bookTitle(st)),
     el('div.k2', {}, chs.map(c => c.title).join(' · ')),
     el('div.k3', {}, `${st.org} — ${st.appName}`),
     el('div.k3', {}, `${chs.length} ${chs.length === 1 ? 'باب' : 'أبواب'} · ${totalSlides} شريحة · نسخة الدرس ${pack.version}`),
@@ -119,7 +119,7 @@ function draw() {
       for (const x of items) parts.push(slideCard(c, x));
     }
   }
-  document.title = `كتاب الشيخ — ${chs.map(c => c.title).join('، ')}`;
+  document.title = `${bookTitle(st)} — ${chs.map(c => c.title).join('، ')}`;
   app.replaceChildren(toolbar(), el('article.book', {}, cover, intro, ...parts));
 }
 

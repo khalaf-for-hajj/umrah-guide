@@ -1,7 +1,7 @@
 // لوحة المشرف: الأبواب، المحرر، الاستيراد، المراجعة، النشر والإعدادات، الشيوخ والغرف
 import '../core/blocks-builtin.js';
 import { el, $, toast, download, fmtDate } from '../core/dom.js';
-import { flatSlides, emptyChapter, uid, newVersion, CHAPTER_STATUS, chapterMinutesCheck, PACK_FORMAT, SCHEMA_VERSION, EXPLAIN_FOR } from '../core/pack.js';
+import { flatSlides, emptyChapter, uid, newVersion, CHAPTER_STATUS, chapterMinutesCheck, PACK_FORMAT, SCHEMA_VERSION, EXPLAIN_FOR, bookTitle } from '../core/pack.js';
 import { openBook } from './book-open.js';
 import { marjaCard } from './marjas.js';
 import { slideMedia } from '../core/render.js';
@@ -56,7 +56,7 @@ function chaptersTab(host) {
         el('button.tool', { type: 'button', title: 'لأعلى', onclick: () => { if (i) { [A.pack.chapters[i - 1], A.pack.chapters[i]] = [ch, A.pack.chapters[i - 1]]; changed(); chaptersTab(host); } } }, '↑'),
         el('button.tool', { type: 'button', title: 'لأسفل', onclick: () => { if (i < A.pack.chapters.length - 1) { [A.pack.chapters[i + 1], A.pack.chapters[i]] = [ch, A.pack.chapters[i + 1]]; changed(); chaptersTab(host); } } }, '↓'),
         el('button.btn', { type: 'button', onclick: () => show('editor', ch.id) }, 'حرّر'),
-        el('button.tool', { type: 'button', onclick: () => openBook(ch.id) }, '📖 كتاب الشيخ (PDF)'),
+        el('button.tool', { type: 'button', onclick: () => openBook(ch.id) }, `📖 ${bookTitle(A.pack.settings)} (PDF)`),
         el('button.tool', { type: 'button', onclick: () => exportChapter(ch) }, 'تصدير JSON'),
         el('button.tool.danger', { type: 'button', onclick: async () => {
           if (!(await confirmBox(`حذف باب «${ch.title}» نهائياً من نسخة العمل؟ (${n} شريحة)`, 'نعم، احذف', 'تراجع'))) return;
@@ -70,9 +70,15 @@ function chaptersTab(host) {
       el('div.row', { style: { marginTop: '12px' } },
         el('button.btn', { type: 'button', onclick: () => { const c = emptyChapter('باب جديد', 'hidden'); A.pack.chapters.push(c); logChange({ where: 'الأبواب', field: 'إضافة باب', before: '', after: c.title }); changed(); show('editor', c.id); } }, '+ باب فارغ'),
         el('button.btn.ghost', { type: 'button', onclick: () => show('import') }, 'استيراد باب من PPTX أو JSON'))),
-    el('section.card', {}, el('h3', {}, '📖 كتاب الشيخ'),
+    el('section.card', {}, el('h3', {}, '📖 ' + bookTitle(A.pack.settings)),
+      el('label.fld', {}, el('span', {}, 'عنوان الكتاب (يظهر على الغلاف وفي الأزرار)'),
+        el('input', { type: 'text', value: bookTitle(A.pack.settings), placeholder: 'كتاب الشيخ', onchange: e => {
+          const v = e.target.value.trim() || 'كتاب الشيخ', before = bookTitle(A.pack.settings);
+          if (v === before) return;
+          A.pack.settings.bookTitle = v; logChange({ where: 'الإعدادات', field: 'عنوان كتاب الشيخ', before, after: v }); changed(); chaptersTab(host); toast('غُيّر عنوان الكتاب');
+        } })),
       el('p.small', {}, 'كتاب للطباعة أو الحفظ PDF فيه العرض كاملاً خطوة بخطوة مع شرح الشيخ وملاحظاته، ترسله لشيخ الباص ليقرأه قبل المحاضرة. يُبنى من نسخة العمل الحالية، ويستطيع الشيخ أيضاً فتحه من شاشته بعد الدخول.'),
-      el('button.btn', { type: 'button', onclick: () => openBook('all') }, 'افتح كتاب الشيخ لكل الأبواب')));
+      el('button.btn', { type: 'button', onclick: () => openBook('all') }, `افتح ${bookTitle(A.pack.settings)} لكل الأبواب`)));
 }
 
 async function exportChapter(ch) {

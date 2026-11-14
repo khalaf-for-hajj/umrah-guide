@@ -25,6 +25,8 @@ export const DEFAULT_SETTINGS = {
   ].join('\n'),
   // كيف يُحدَّد مرجع المعتمر: ask = يسأله التطبيق، all = تُعرض أقوال كل المراجع دون سؤال، أو معرّف مرجع واحد للجميع
   marjaMode: 'ask',
+  // عنوان كتاب الشيخ (غلافه وأزراره)
+  bookTitle: 'كتاب الشيخ',
   explainFor: 'all', // من يرى «شرح الشيخ»: all = الشيخ والمعتمر، sheikh = الشيخ فقط (ويمكن تغييره لكل شريحة)
   marjas: [
     { id: 'khoei', name: 'الخوئي', aliases: ['الخوئي', 'خوئي', 'الخوئى'] },
@@ -122,6 +124,7 @@ export function pilgrimMarja(settings, stored) {
   if (m === 'all') return 'other';
   return (settings.marjas || []).some(x => x.id === m) ? m : 'other';
 }
+export const bookTitle = settings => String(settings?.bookTitle || '').trim() || 'كتاب الشيخ';
 export const askingMarja = settings => (settings?.marjaMode || 'ask') === 'ask';
 
 /** من يرى «شرح الشيخ» لهذه الشريحة: إعداد الشريحة أولاً ثم الإعداد العام */
