@@ -1,6 +1,6 @@
 // عامل الخدمة: يخزّن واجهة التطبيق والدرس ليعمل بلا إنترنت
 // غيّر SHELL_VERSION عند تحديث ملفات الواجهة
-const SHELL_VERSION = 'v6-2026-11-14';
+const SHELL_VERSION = 'v7-2026-11-15';
 const SHELL = 'um-shell-' + SHELL_VERSION;
 const CONTENT = 'um-content';
 
@@ -8,7 +8,7 @@ const SHELL_FILES = [
   './', 'index.html', 'sheikh.html', 'book.html', 'js/book.js', 'config.js', 'manifest.webmanifest', 'css/app.css',
   'js/pilgrim.js', 'js/sheikh.js', 'js/core/arabic.js', 'js/core/blocks.js', 'js/core/blocks-builtin.js',
   'js/core/dom.js', 'js/core/pack.js', 'js/core/relay.js', 'js/core/render.js', 'js/core/store.js',
-  'js/core/offline.js', 'js/core/deter.js', 'js/core/ui.js', 'js/core/stage.js', 'js/core/block-diagram.js', 'js/core/diagram-body.js', 'js/core/block-ayah.js', 'js/core/audio.js', 'js/recite.js',
+  'js/core/offline.js', 'js/core/deter.js', 'js/core/ui.js', 'js/core/stage.js', 'js/core/block-diagram.js', 'js/core/diagram-body.js', 'js/core/block-ayah.js', 'js/core/audio.js', 'js/recite.js', 'js/core/room-create.js',
   'assets/img/logo-mark.jpg', 'assets/img/logo-full.png', 'assets/img/icon-192.png',
   'assets/fonts/tajawal-arabic-400-normal.woff2', 'assets/fonts/tajawal-arabic-500-normal.woff2',
   'assets/fonts/tajawal-arabic-700-normal.woff2', 'assets/fonts/tajawal-arabic-800-normal.woff2',

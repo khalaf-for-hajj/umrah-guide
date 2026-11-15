@@ -10,6 +10,7 @@ import { normalizeSearch, toLatinDigits } from './core/arabic.js';
 import { rpc, startPolling, relayConfigured } from './core/relay.js';
 import { registerSW, downloadLesson, isLessonCached } from './core/offline.js';
 import { enableDeterrents } from './core/deter.js';
+import { selfCreateAllowed, createRoomDialog } from './core/room-create.js';
 import { sheikhTitle, applyPrefs, modal, footer, showTerms, askMarja, marjaChooser, seg, confirmBox } from './core/ui.js';
 
 const S = {
@@ -171,7 +172,15 @@ async function sheikhLogin() {
   const code = el('input.code-input', { type: 'text', inputmode: 'numeric', maxlength: 4, placeholder: 'رقم الغرفة', 'aria-label': 'رقم الغرفة', style: { fontSize: '1.6em', letterSpacing: '.2em' } });
   const pin = el('input.code-input', { type: 'password', inputmode: 'numeric', maxlength: 6, placeholder: 'الرقم السري', 'aria-label': 'الرقم السري', autocomplete: 'off', style: { fontSize: '1.6em', letterSpacing: '.2em' } });
   const msg = el('p.pending');
-  await modal('دخول الشيخ', el('div', { style: { display: 'grid', gap: '10px' } }, el('p', {}, 'اكتب رقم غرفتك والرقم السري المطبوع لك.'), code, pin, msg), [
+  // «إنشاء غرفة» يظهر فقط إذا سمح به المشرف
+  const createSlot = el('div');
+  selfCreateAllowed().then(ok => {
+    if (!ok || !createSlot.isConnected) return;
+    createSlot.replaceChildren(el('div.center', { style: { borderTop: '1px solid var(--line)', paddingTop: '10px' } },
+      el('span.small', {}, 'ليس لديك رقم غرفة؟ '),
+      el('button.btn.teal', { type: 'button', onclick: async e => { const d = e.target.closest('dialog'); d.close(); d.remove(); if (await createRoomDialog()) location.href = 'sheikh.html'; } }, '+ إنشاء غرفة جديدة')));
+  });
+  await modal('دخول الشيخ', el('div', { style: { display: 'grid', gap: '10px' } }, el('p', {}, 'اكتب رقم غرفتك والرقم السري المطبوع لك.'), code, pin, msg, createSlot), [
     { label: 'دخول', onClick: async close => {
       const c = toLatinDigits(code.value).replace(/\D/g, ''), p = toLatinDigits(pin.value).replace(/\D/g, '');
       try { await rpc('um_sheikh_login', { p_code: c, p_pin: p }); store.set('sh.cred', { code: c, pin: p }); close(1); location.href = 'sheikh.html'; }

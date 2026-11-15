@@ -10,6 +10,7 @@ import { registerSW } from './core/offline.js';
 import { sheikhTitle, applyPrefs, modal, confirmBox, footer } from './core/ui.js';
 import { toLatinDigits } from './core/arabic.js';
 import config from '../config.js';
+import { selfCreateAllowed, createRoomDialog } from './core/room-create.js';
 
 const S = {
   pack: null,
@@ -91,6 +92,18 @@ function viewLogin(msg) {
     } catch (e) { viewLogin(e.message); }
   };
   pin.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+  // «إنشاء غرفة» يظهر فقط إذا سمح به المشرف
+  const createSlot = el('div');
+  selfCreateAllowed().then(ok => {
+    if (!ok || !createSlot.isConnected) return;
+    createSlot.replaceChildren(el('section.card.center', { style: { display: 'grid', gap: '8px' } },
+      el('b', {}, 'ليس لديك رقم غرفة؟'),
+      el('button.btn.big.teal.block', { type: 'button', onclick: async () => {
+        const cred = await createRoomDialog(); if (!cred) return;
+        S.cred = cred;
+        try { S.room = await rpc('um_sheikh_login', { p_code: cred.code, p_pin: cred.pin }); viewHome(); } catch (e) { viewLogin(e.message); }
+      } }, '+ إنشاء غرفة جديدة')));
+  });
   app.replaceChildren(el('main', {},
     el('img.hero-logo', { src: 'assets/img/logo-full.png', alt: 'حملة الخلف للحج والعمرة', style: { width: '180px', height: '180px' } }),
     el('h1.page-title.center', {}, 'دخول الشيخ'),
@@ -100,6 +113,7 @@ function viewLogin(msg) {
       el('button.btn.huge.block', { type: 'button', onclick: go }, 'دخول'),
       el('p.small', {}, 'الرقم السري مطبوع في البطاقة التي سلّمها لك المشرف.'))
       : el('div.banner', {}, 'المتابعة التلقائية غير مضبوطة بعد. يمكنك العرض بالوضع اليدوي: تعلن رقم الشريحة والمعتمرون يذهبون إليها.'),
+    createSlot,
     el('section.card', { style: { display: 'grid', gap: '10px' } }, el('button.btn.big.ghost.block', { type: 'button', onclick: startManual }, 'اعرض بالوضع اليدوي (بلا متابعة)'),
       el('a.btn.ghost.block', { href: 'book.html', target: '_blank', rel: 'noopener' }, `📖 ${bookTitle(S.pack.settings)} (للقراءة والطباعة)`)),
     el('p.center', {}, el('a', { href: 'index.html' }, 'العودة لصفحة المعتمر')),
@@ -117,6 +131,8 @@ function viewHome(msg) {
       r.bus ? el('p.muted', {}, r.bus) : null,
       el('p', {}, 'أعلن هذا الرقم للمعتمرين'),
       el('div.bigcode', { 'aria-label': 'رقم الغرفة ' + r.code }, r.code),
+      (() => { const v = el('b', { dir: 'ltr', style: { letterSpacing: '.15em' } }, '••••••'); let on = false;
+        return el('p.small', {}, 'الرقم السري (لك وحدك): ', v, ' ', el('button.tool', { type: 'button', 'aria-label': 'إظهار الرقم السري', onclick: () => { on = !on; v.textContent = on ? S.cred?.pin || '' : '••••••'; } }, '👁')); })(),
       el('p', {}, r.live ? '🟢 العرض قائم الآن' : 'لم يبدأ العرض بعد')),
     el('section.card', { style: { display: 'grid', gap: '10px' } },
       el('button.btn.huge.block', { type: 'button', onclick: startSession }, r.live ? 'متابعة العرض' : 'ابدأ العرض'),

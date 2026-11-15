@@ -46,12 +46,27 @@ export async function sheikhsTab(host) {
           el('button.btn', { type: 'button', onclick: printCards }, '🖨 طباعة بطاقات الشيوخ'),
           el('button.btn.teal', { type: 'button', onclick: groupMessage }, 'رسالة قروب الواتساب'),
           el('button.btn.ghost', { type: 'button', onclick: () => document.getElementById('time-report')?.scrollIntoView({ behavior: 'smooth' }) }, 'تقرير الوقت ↓'))),
+      selfCard(),
       uploadCard(),
       roomsCard(),
       reportCard(),
       el('section.card', {}, el('h3', {}, 'الإغلاق التلقائي'),
         el('div.row', {}, el('span', {}, 'يُغلق العرض بعد'), (() => { const i = el('input', { type: 'number', min: 1, max: 72, value: D.idle_hours, style: { width: '90px' } }); i.addEventListener('change', async () => { await call('um_admin_set_idle_hours', { p_hours: Number(i.value) }); toast('حُفظ'); }); return i; })(), el('span', {}, 'ساعة بلا نشاط من الشيخ'))),
     );
+  }
+
+  // ---------- السماح للشيوخ بإنشاء غرفهم ----------
+  function selfCard() {
+    const on = Boolean(D.self_create);
+    const mine = D.rooms.filter(r => r.self_made).length;
+    const set = async v => { await call('um_admin_set_self_create', { p_on: v }); D.self_create = v; toast(v ? 'فُتح إنشاء الغرف' : 'أُغلق إنشاء الغرف'); render(); };
+    return el('section.card', {}, el('h3', {}, 'إنشاء الغرف من شاشة الشيخ'),
+      el('p.small', {}, 'عند الفتح يظهر زر «+ إنشاء غرفة جديدة» في «دخول الشيخ»: يكتب الشيخ اسمه فيحصل على رقم غرفة ورقم سري ويبدأ العرض مباشرة. عند الإغلاق يختفي الزر، وتبقى الغرف التي أُنشئت تعمل حتى تحذفها أو تعطّلها.'),
+      el('div.row', {},
+        el('span', {}, 'الحالة: ', el('b', { style: { color: on ? 'var(--teal)' : 'var(--red)' } }, on ? 'مفتوح' : 'مغلق')),
+        on ? el('button.btn.danger', { type: 'button', onclick: () => set(false) }, 'أغلق إنشاء الغرف')
+          : el('button.btn.teal', { type: 'button', onclick: () => set(true) }, 'افتح إنشاء الغرف'),
+        mine ? el('span.small', {}, `أنشأ الشيوخ ${mine} غرفة (معلّمة بـ «أنشأها الشيخ» في الجدول).`) : null));
   }
 
   // ---------- رفع القائمة من إكسل ----------
@@ -103,7 +118,7 @@ export async function sheikhsTab(host) {
           const pin = el('span', { dir: 'ltr', style: { fontWeight: 800, letterSpacing: '.1em' } }, '••••••');
           let shown = false;
           return el('tr', { style: r.active ? {} : { opacity: .5 } },
-            el('td', {}, i + 1), el('td', {}, s), el('td', {}, b),
+            el('td', {}, i + 1), el('td', {}, s, r.self_made ? el('div.small', { style: { color: 'var(--teal)' } }, 'أنشأها الشيخ') : null), el('td', {}, b),
             el('td', {}, el('b', { dir: 'ltr', style: { fontSize: '1.2em' } }, r.code)),
             el('td', {}, pin, ' ', el('button.tool', { type: 'button', onclick: () => { shown = !shown; pin.textContent = shown ? r.pin : '••••••'; } }, '👁')),
             el('td', {}, !r.active ? 'معطّلة' : r.live ? `🟢 يعرض${r.state?.n ? ' — شريحة ' + r.state.n : ''}` : '—'),
