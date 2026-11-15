@@ -540,4 +540,5 @@ dialog.modal .m-head, dialog.modal .m-foot { flex: none; }
 .marja-row { align-items: center; gap: 6px; flex-wrap: wrap; }
 .marja-row input:first-child { width: 140px; }
 /* التلميح العربي داخل خانة الأرقام: بلا تباعد حتى لا تنفصل الحروف */
-.join .code-input::placeholder { letter-spacing: 0; font-size: .6em; font-weight: 700; }
+.code-input:placeholder-shown { letter-spacing: 0 !important; }
+.code-input::placeholder { letter-spacing: 0 !important; font-size: .6em; font-weight: 700; word-spacing: 0; }
