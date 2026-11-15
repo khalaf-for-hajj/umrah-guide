@@ -145,7 +145,11 @@ export async function sheikhsTab(host) {
       el('div.row', {},
         el('button.btn', { type: 'button', onclick: () => exportReport(R) }, 'تنزيل التقرير (إكسل)'),
         el('button.btn.ghost', { type: 'button', onclick: () => printReport(R) }, 'طباعة التقرير'),
-        el('button.btn.ghost', { type: 'button', onclick: load }, 'تحديث')),
+        el('button.btn.ghost', { type: 'button', onclick: load }, 'تحديث'),
+        R.length ? el('button.btn.danger', { type: 'button', onclick: async () => {
+          if (!(await confirmBox('مسح تقرير وقت الشرح نهائياً؟ نزّل التقرير (إكسل) قبل المسح إن احتجته. العروض الجارية الآن لا تُمسح.', 'نعم، امسح التقرير', 'تراجع'))) return;
+          const r = await call('um_admin_clear_report', {}); toast(`مُسح التقرير (${r.deleted} عرض)`); load();
+        } }, '🗑 مسح التقرير') : null),
       R.length ? el('div.logtable', { style: { marginTop: '10px' } }, el('table', {},
         el('thead', {}, el('tr', {}, ['الشيخ', 'الباص', 'الغرفة', 'العروض', 'مدة الشرح', 'تفصيل الأبواب'].map(h => el('th', {}, h)))),
         el('tbody', {}, R.map(x => el('tr', {},
