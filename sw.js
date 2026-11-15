@@ -1,6 +1,6 @@
 // عامل الخدمة: يخزّن واجهة التطبيق والدرس ليعمل بلا إنترنت
 // غيّر SHELL_VERSION عند تحديث ملفات الواجهة
-const SHELL_VERSION = 'v7-2026-11-15';
+const SHELL_VERSION = 'v8-2026-11-15';
 const SHELL = 'um-shell-' + SHELL_VERSION;
 const CONTENT = 'um-content';
 
